@@ -1,0 +1,12 @@
+configuration-as-code:latest
+git:latest
+workflow-aggregator:latest
+role-strategy:latest
+job-dsl:latest
+github:latest
+github-branch-source:latest
+pipeline-model-definition:latest
+docker-workflow:latest
+docker-plugin:latest
+timestamper:latest
+generic-webhook-trigger:latest

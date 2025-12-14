@@ -1,0 +1,43 @@
+name: Validate JCasC Configuration
+
+on:
+  push:
+    paths:
+      - "jcasc/**"
+      - "dsl/**"
+      - "init.groovy.d/**"
+      - ".github/workflows/validate-jcasc.yml"
+  pull_request:
+    paths:
+      - "jcasc/**"
+      - "dsl/**"
+      - "init.groovy.d/**"
+      - ".github/workflows/validate-jcasc.yml"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Validate Configuration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Validate YAML syntax
+        run: |
+          echo "=== Validating YAML files ==="
+          for file in jcasc/*.yaml; do
+            if [ -f "$file" ]; then
+              echo "Checking $file..."
+              yamllint -d relaxed "$file"
+            fi
+          done

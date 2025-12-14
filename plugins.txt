@@ -1,7 +1,0 @@
-credentials:latest
-git:latest
-job-dsl:1.77
-workflow-aggregator:2.6
-configuration-as-code:1.38
-role-strategy:2.16
-bouncycastle-api:2.18

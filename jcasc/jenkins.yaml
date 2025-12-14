@@ -1,0 +1,102 @@
+jenkins:
+  systemMessage: "Jenkins as Code - Managed via JCasC"
+  numExecutors: 2
+  mode: NORMAL
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+        - id: "aazizzailani"
+          password: "developer123"
+        - id: "aazizzailani123"
+          password: "developer123"
+        - id: "aazizzailani1234"
+          password: "developer1234"
+
+  authorizationStrategy:
+    roleBased:
+      roles:
+        global:
+          - name: "admin"
+            description: "Administrator"
+            permissions:
+              - "Overall/Administer"
+            entries:
+              - user: "admin"
+          - name: "developer"
+            description: "Developer - can create and manage jobs"
+            permissions:
+              - "Overall/Read"
+              - "Job/Build"
+              - "Job/Cancel"
+              - "Job/Configure"
+              - "Job/Create"
+              - "Job/Delete"
+              - "Job/Read"
+              - "Job/Workspace"
+              - "Run/Delete"
+              - "Run/Replay"
+              - "Run/Update"
+              - "SCM/Tag"
+              - "View/Configure"
+              - "View/Create"
+              - "View/Delete"
+              - "View/Read"
+            entries:
+              - user: "aazizzailani"
+              - user: "aazizzailani123"
+              - user: "aazizzailani1234"
+          - name: "viewer"
+            description: "Read-only"
+            permissions:
+              - "Overall/Read"
+              - "Job/Read"
+            entries:
+              - group: "authenticated"
+
+jobs:
+  - script: |
+      freeStyleJob('seed-job') {
+        scm {
+          git {
+            remote {
+              url('${CICD_REPO_URL}')
+              credentials('github-token')
+            }
+            branch('${CICD_REPO_BRANCH}')
+          }
+        }
+        steps {
+          dsl {
+            text(new File('/var/jenkins_home/dsl/generate-pipelines.groovy').text)
+            removeAction('DELETE')
+            removeViewAction('DELETE')
+          }
+        }
+        triggers {
+          scm('H/15 * * * *')
+        }
+      }
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              scope: GLOBAL
+              id: "github-token"
+              username: "${GITHUB_USERNAME}"
+              password: "${GITHUB_TOKEN}"
+              description: "GitHub Personal Access Token"
+
+security:
+  scriptApproval:
+    approvedSignatures:
+      - "method groovy.lang.GroovyObject invokeMethod java.lang.String java.lang.Object"
+
+unclassified:
+  location:
+    url: "http://localhost:8080"
